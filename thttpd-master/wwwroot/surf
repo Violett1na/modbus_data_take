@@ -1,0 +1,141 @@
+<!DOCTYPE html>  
+<html lang="en">  
+
+<head>  
+    <meta charset="UTF-8">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    <title>工业采集</title>  
+    <style>  
+        body {  
+            background-image: url('katsusa.jfif'); /* Background image */  
+            background-size: cover; /* Cover the entire viewport */  
+            background-position: center; /* Center the image */  
+            background-repeat: no-repeat; /* Do not repeat the image */  
+            color: #ffffff; /* White text */  
+            font-family: 'Arial', sans-serif;  
+            margin: 0;  
+            padding: 20px;  
+            display: flex;  
+            justify-content: center;  
+            align-items: center;  
+            flex-direction: column;  
+            height: 100vh;  
+        }  
+
+        h1 {  
+            margin-bottom: 20px;  
+            text-shadow: 1px 1px 5px #000;   
+        }  
+
+        .container {  
+            background: rgba(40, 40, 40, 0.8); /* Dark overlay with transparency */  
+            padding: 20px;  
+            border-radius: 8px;  
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);   
+            width: 300px;  
+            text-align: center;  
+        }  
+
+        input[type="text"], input[type="button"], input[type="radio"] {  
+            margin: 10px 0;  
+            padding: 12px;  
+            border-radius: 5px;  
+            border: 1px solid #555;  
+            background-color: #222;   
+            color: #ffffff;   
+            transition: background 0.3s, border 0.3s;   
+            width: calc(100% - 24px);  
+            box-sizing: border-box;  
+        }  
+
+        input[type="button"] {  
+            background-color: #007BFF;   
+            font-weight: bold;  
+            cursor: pointer;  
+        }  
+
+        input[type="button"]:hover {  
+            background-color: #0056b3;   
+        }  
+        
+        input[type="radio"] {  
+            appearance: none;  
+            margin-right: 5px;  
+            width: 20px;  
+            height: 20px;  
+            border: 2px solid #555;  
+            border-radius: 50%;  
+            cursor: pointer;  
+            position: relative;  
+        }  
+
+        input[type="radio"]:checked {  
+            background-color: #007BFF;  
+            border-color: #007BFF;  
+        }  
+
+        label {  
+            margin-right: 20px;   
+            cursor: pointer;   
+            transition: color 0.3s;   
+        }  
+
+        label:hover {  
+            color: #007BFF;   
+        }  
+
+        #temp, #humi {  
+            font-size: 18px;   
+            text-align: center;   
+        }  
+    </style>  
+</head>  
+
+<script>  
+    function sendRequest(url, data) {  
+        var xhr = new XMLHttpRequest();  
+        xhr.open("POST", url, true);  
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");  
+        xhr.send(data);  
+    }  
+
+    function led(action) {  
+        sendRequest("", `set0-${action === 'open' ? '1' : '0'}`);  
+    }  
+
+    function buzzer(action) {  
+        sendRequest("", `set1-${action === 'open' ? '1' : '0'}`);  
+    }  
+
+    function flush() {  
+        var xhr = new XMLHttpRequest();  
+        xhr.open("POST", "", true);  
+        xhr.send("get");  
+        xhr.onreadystatechange = function () {  
+            if (xhr.readyState === 4 && xhr.status === 200) {  
+                const val = xhr.responseText.split('&');  
+                document.getElementById("temp").value = val[0].split(" ")[1];  
+                document.getElementById("humi").value = val[1].split(" ")[1];  
+            }  
+        };  
+    }  
+</script>  
+
+<body>  
+    <div class="container">  
+        <h1>工业数据采集</h1>  
+        温度(℃)<input type="text" name="temp" id="temp" value="">  <br>
+        湿度(%)<input type="text" name="humi" id="humi" value="">  
+        <input type="button" name="flush" value="刷新" onclick="flush()"><br>  
+        
+        LED   
+        <label><input type="radio" name="led" onclick="led('open')">开</label>  
+        <label><input type="radio" name="led" onclick="led('close')">关</label><br>  
+        
+        蜂鸣器   
+        <label><input type="radio" name="buzzer" onclick="buzzer('open')">开</label>  
+        <label><input type="radio" name="buzzer" onclick="buzzer('close')">关</label>  
+    </div>  
+</body>  
+
+</html>  
